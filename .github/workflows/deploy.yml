@@ -5,6 +5,9 @@ on:
     branches:
       - main
 
+env:
+  SSH_HOST: ${{ secrets.SSH_HOST }}
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -14,6 +17,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Deploy via SSH
+        if: env.SSH_HOST != ''
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.SSH_HOST }}
