@@ -1,0 +1,48 @@
+networks:
+  gitea:
+    external: true
+    name: gitea
+  internal:
+    internal: true
+
+services:
+  server:
+    image: docker.gitea.com/gitea:latest
+    container_name: mygitea
+    restart: always
+    env_file:
+      - .gitea.env
+    environment:
+      - USER_UID=1000
+      - USER_GID=1000
+    networks:
+      - gitea
+      - internal
+    volumes:
+      - gitea_data:/data
+    ports:
+      - "${GITEA_SSH_PORT}:22"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.gitea.rule=Host(`${GITEA_HOSTNAME}`)"
+      - "traefik.http.routers.gitea.entrypoints=websecure"
+      - "traefik.http.routers.gitea.tls.certresolver=lets-encrypt"
+      - "traefik.http.services.gitea.loadbalancer.server.port=3000"
+
+    depends_on:
+      - db
+
+  db:
+    image: postgres:latest
+    container_name: gitea_db
+    restart: always
+    env_file:
+      - .gitea.env
+    networks:
+      - internal
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  gitea_data:
+  postgres_data:

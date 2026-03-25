@@ -1,0 +1,13 @@
+services:
+  gitea-runner:
+    image: gitea/act_runner:latest
+    container_name: gitea-runner
+    restart: always
+    volumes:
+      - gitea_runner_data:/data
+      - /var/run/docker.sock:/var/run/docker.sock
+    env_file:
+      - .gitea.env
+
+volumes:
+  gitea_runner_data:
